@@ -14,3 +14,8 @@ tarea4/knn2/train/
 tarea4/knn2/test/
 *-ubyte
 *-ubyte.gz
+# memoria y enunciado: solo en local, nunca en el repo
+memoria/
+enunciado/
+*.docx
+*.pdf

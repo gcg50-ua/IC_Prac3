@@ -1,6 +1,6 @@
 # IC – Práctica 3 (MPI)
 
-Un directorio por tarea del enunciado (`enunciado/`):
+Un directorio por tarea del enunciado:
 
 | Directorio | Tarea | Código |
 |---|---|---|
