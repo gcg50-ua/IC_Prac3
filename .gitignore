@@ -1,0 +1,16 @@
+.DS_Store
+build/
+*.o
+gmon.out
+# binarios generados
+tarea0/vectores
+tarea0/matrices
+tarea2/hola_mpi
+tarea3/binarios_mac/
+tarea3/binarios_linux/
+tarea3/remarks/
+# dataset MNIST (se descarga con get_dataset.sh)
+tarea4/knn2/train/
+tarea4/knn2/test/
+*-ubyte
+*-ubyte.gz

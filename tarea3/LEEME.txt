@@ -1,0 +1,92 @@
+BENCHMARK - Practica 2 IC (Grupo 8)
+=======================================
+
+USO: ./benchmark.sh   (o N=100 ./benchmark.sh para cambiar N)
+Genera tiempos/tiempos<MAQUINA><fecha-hora>.csv (p.ej.
+tiempos/tiemposMac20260928-1950.csv): 5 imagenes
+(entradas/engranajeTAMANOxTAMANO.pgm) x 5 flags de compilacion = 25
+filas (flag,imagen,ancho_px,repeticiones_N,tiempo_total_ms). Portable
+Mac/Linux, sin dependencias fuera de g++. Cada ejecucion crea un CSV
+nuevo (no se sobrescribe), asi se acumulan las corridas de distintas
+maquinas/momentos dentro de tiempos/. El script imprime el progreso en
+vivo (flag actual, imagen actual, tiempo obtenido al momento).
+
+
+FLAGS PROBADOS Y POR QUE
+-----------------------------
+  sin flags  -> compilacion "ingenua" (equivale a -O0 por defecto)
+  -O0        -> referencia sin optimizar
+  -O1        -> optimizacion basica, sin autovectorizar a fondo
+  -O2        -> nivel estandar de produccion
+  -O3        -> nivel mas agresivo, activa autovectorizacion automatica
+
+Descartados del barrido: -O3 -march=native / -fno-tree-vectorize
+(aislan la vectorizacion, no el impacto general) y -ffast-math /-Os
+(no son el foco de esta practica). Se pueden anadir a mano si hace
+falta: g++ <flags> -std=c++17 -o dd defect_detection.cc && ./dd
+entradas/engranaje2048x2048.pgm 60
+
+Para buscar evidencia de autovectorizacion (aparte, no lo mide
+benchmark.sh):
+  g++ -O3 -fopt-info-vec-optimized -fopt-info-vec-missed -std=c++17 -c defect_detection.cc
+
+
+PARAMETRO N: EL TRADE-OFF (por que existe y que se eligio)
+-----------------------------------------------------------------
+Con un solo pase (N=1) sobre las 5 imagenes reales, el programa tarda
+entre 5 ms y 65 ms -- muy por debajo del "orden de segundos" que pide
+la practica. defect_detection.cc acepta un segundo argumento N: repite
+el bloque de computo (4 filtros + 2 combinaciones + marcado) N veces
+sobre la misma imagen ya cargada, sumando los tiempos (la lectura y la
+escritura de salidas NO se repiten). Es fuerza bruta deliberada: mismo
+algoritmo, mismo resultado (deterministico), solo cambia la duracion.
+
+TRADE-OFF: con un unico N fijo para las 5 imagenes y los 5 flags, no se
+puede conseguir a la vez que "todas las filas tarden segundos" Y que
+"el script termine rapido" -- la imagen mas grande con el flag mas
+lento (-O0/sin) y la mas pequena con el flag mas rapido (-O3) difieren
+en tiempo por un factor de cientos.
+
+Se eligio N=60 (prioriza que el script termine en pocos minutos frente
+a que TODAS las filas superen el segundo). Resultado real medido:
+
+  flag\imagen   320px    640px    1024px   1280px   2048px
+  sin           3.00 s   12.15 s  30.48 s  48.02 s  120.80 s
+  O0            3.02 s   11.86 s  30.29 s  47.91 s  120.88 s
+  O1            0.14 s    0.55 s   1.42 s   2.36 s    5.83 s
+  O2            0.09 s    0.21 s   0.59 s   0.86 s    2.11 s
+  O3            0.09 s    0.21 s   0.59 s   0.86 s    2.12 s
+
+6 de las 25 filas (O1/O2/O3 con las dos imagenes mas pequenas) quedan
+por debajo de 1 s (minimo 89 ms); el resto va de ~1.4 s a 2 min. Si se
+quiere que TODAS superen el segundo, subir N (p.ej. N=700), a costa de
+que las filas de sin/O0 con la imagen grande pasen de ~2 min a
+~20+ min cada una y el script tarde mucho mas en completarse.
+
+Hallazgos ya observados con estos datos: sin flags ≈ -O0 (como se
+espera, es el mismo comportamiento por defecto); -O0 es entre 14x y 57x
+mas lento que -O2/-O3 segun la imagen (el kernel 3x3 tiene limites de
+bucle fijos en compilacion, así que -O1 en adelante puede desenrollarlo
+e in-linear el acceso a pixel; sin optimizar, esas llamadas se pagan
+literalmente); -O1 queda claramente por detras de -O2/-O3 (~2.7x mas
+lento en la imagen grande); -O2 y -O3 salen practicamente iguales.
+
+
+MAC vs. ENTORNO LINUX DE LA ASIGNATURA
+-------------------------------------------
+Sirve para desarrollar/probar en Mac, pero las cifras oficiales de la
+memoria hay que remedirlas en el Linux de la asignatura: en Mac "g++"
+es Clang por debajo (vectoriza distinto al GCC real), y los tiempos de
+un portatil con otros programas de fondo no son reproducibles. Para
+repetir en Linux: copiar la carpeta fuente/ completa y ejecutar
+./benchmark.sh igual que en el Mac.
+
+
+PENDIENTE (fuera de benchmark.sh)
+---------------------------------------
+- Graficas de tiempos.csv para la memoria (tiempo vs. flag por imagen;
+  ganancia respecto a -O0).
+- Evidencia de autovectorizacion (comando de arriba) y, si hace falta,
+  inspeccionar el ensamblador generado.
+- Interpretacion de resultados (apartado 2.6) y, aparte, un estudio de
+  escalado con el TAMANO de imagen (N=1, sin fuerza bruta, flag fijo).
