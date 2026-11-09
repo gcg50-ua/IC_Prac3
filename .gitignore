@@ -19,3 +19,7 @@ memoria/
 enunciado/
 *.docx
 *.pdf
+# kNN MPI: lo genera run_all.sh
+tarea4/knn2/mpi_src/
+tarea4/knn2/resultados/
+.vscode/
