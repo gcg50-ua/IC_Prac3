@@ -128,6 +128,9 @@ python3 graficas_mpi.py tiempos_mpi/<csv generado>
   nodos secundarios: solo P0 lee y escribe.
 - Si `mpirun` se queja de que no hay *slots* suficientes, poner `slots=<núcleos>` en cada línea
   del hostfile (p. ej. `172.21.243.178 slots=4`) o añadir `MPIRUN_EXTRA="--oversubscribe"`.
+- `MPIRUN_EXTRA` pasa opciones extra a `mpirun` en los dos scripts. En la sala hay **MPICH**, que
+  ya reparte los procesos por turnos entre los nodos del hostfile: no hace falta nada. Solo con
+  Open MPI (que llena primero el primer equipo) conviene `MPIRUN_EXTRA="--map-by node"`.
 - Para repartir los procesos entre máquinas en lugar de llenar una primero:
   `MPIRUN_EXTRA="--map-by node"`. Medir con ambos repartos sirve para la pregunta 3
   (comunicación dentro de un nodo vs. por la red).
