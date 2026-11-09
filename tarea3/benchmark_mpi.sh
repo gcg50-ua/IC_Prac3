@@ -69,8 +69,8 @@ if [ -n "${HOSTFILE:-}" ]; then
         [ -z "$ip" ] && continue
         [[ "$ip" == \#* ]] && continue
         [[ "$MIS_IPS" == *" $ip "* ]] && continue
-        ssh -o BatchMode=yes "$ip" "mkdir -p '$PWD/binarios_linux'"
-        scp -q "$BIN" "$ip:$PWD/$BIN"
+        ssh -n -o BatchMode=yes -o ConnectTimeout=10 "$ip" "mkdir -p '$PWD/binarios_linux'"
+        scp -q -o ConnectTimeout=10 "$BIN" "$ip:$PWD/$BIN"
         echo "   $ip OK"
     done < "$HOSTFILE"
 fi

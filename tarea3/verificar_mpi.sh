@@ -27,8 +27,8 @@ if [ -n "${HOSTFILE:-}" ]; then
         [ -z "$ip" ] && continue
         [[ "$ip" == \#* ]] && continue
         [[ "$MIS_IPS" == *" $ip "* ]] && continue
-        ssh -o BatchMode=yes "$ip" "mkdir -p '$PWD/binarios_linux'"
-        scp -q binarios_linux/defect_detection_mpi "$ip:$PWD/binarios_linux/"
+        ssh -n -o BatchMode=yes -o ConnectTimeout=10 "$ip" "mkdir -p '$PWD/binarios_linux'"
+        scp -q -o ConnectTimeout=10 binarios_linux/defect_detection_mpi "$ip:$PWD/binarios_linux/"
         echo "Copiado a $ip"
     done < "$HOSTFILE"
 fi
