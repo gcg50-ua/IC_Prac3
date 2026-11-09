@@ -1,0 +1,6 @@
+# Siempre LF: los scripts se ejecutan en Linux (sala de prácticas)
+* text=auto eol=lf
+*.pgm binary
+*.ppm binary
+*.pdf binary
+*.png binary
