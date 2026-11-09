@@ -23,3 +23,6 @@ enunciado/
 tarea4/knn2/mpi_src/
 tarea4/knn2/resultados/
 .vscode/
+# salidas generadas por los programas de la tarea 3
+tarea3/salidas/
+tarea3/salidas_mpi/
