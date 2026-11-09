@@ -114,26 +114,27 @@ mpirun -n 4 ./defect_detection_mpi entradas/engranaje2048x2048.pgm 60 datos
 mpirun -n 4 ./defect_detection_mpi entradas/engranaje2048x2048.pgm 60 tareas
 ```
 
-En la sala (equipo principal, como `usuariocp`, con el SSH ya preparado con
-`tarea2/setup_mpi.sh` y `hosts.txt` actualizado):
+En la sala, en el equipo principal y como `usuariocp`, con el repo clonado en su carpeta personal
+y las IPs del día en `hosts_sala.txt` (raíz del repo). Los pasos completos están en
+[`GUIA_SALA.md`](../GUIA_SALA.md).
 
 ```sh
-cp -r tarea3 ~/tarea3 && cd ~/tarea3 && chmod +x *.sh
-HOSTFILE=../tarea2/hosts.txt ./verificar_mpi.sh
-HOSTFILE=../tarea2/hosts.txt NPS="1 2 3 4 6 8 12" ./benchmark_mpi.sh
+cd ~/IC_Prac3/tarea3
+HOSTFILE=../hosts_sala.txt ./verificar_mpi.sh
+HOSTFILE=../hosts_sala.txt NPS="1 2 3 4 6 8 12" ./benchmark_mpi.sh
 python3 graficas_mpi.py tiempos_mpi/<csv generado>
 ```
 
-- El script copia el ejecutable a la **misma ruta** en cada nodo. Las imágenes no hacen falta en los
-  nodos secundarios: solo P0 lee y escribe.
-- Si `mpirun` se queja de que no hay *slots* suficientes, poner `slots=<núcleos>` en cada línea
-  del hostfile (p. ej. `172.21.243.178 slots=4`) o añadir `MPIRUN_EXTRA="--oversubscribe"`.
-- `MPIRUN_EXTRA` pasa opciones extra a `mpirun` en los dos scripts. En la sala hay **MPICH**, que
-  ya reparte los procesos por turnos entre los nodos del hostfile: no hace falta nada. Solo con
-  Open MPI (que llena primero el primer equipo) conviene `MPIRUN_EXTRA="--map-by node"`.
-- Para repartir los procesos entre máquinas en lugar de llenar una primero:
-  `MPIRUN_EXTRA="--map-by node"`. Medir con ambos repartos sirve para la pregunta 3
-  (comunicación dentro de un nodo vs. por la red).
+- Los scripts copian el ejecutable a la **misma ruta** en cada nodo. Las imágenes no hacen falta en
+  los nodos secundarios: solo P0 lee y escribe.
+- En la sala hay **MPICH**: con una IP por línea reparte los procesos por turnos entre los nodos
+  (con `-n 3`, uno en cada equipo). No hace falta ninguna opción extra.
+- Para medir la comunicación dentro de un nodo frente a la red (pregunta 3), se puede llenar un
+  equipo antes de pasar al siguiente poniendo `IP:núcleos` en cada línea de una copia del
+  hostfile (p. ej. `172.21.243.170:4`).
+- `MPIRUN_EXTRA` pasa opciones extra a `mpirun` en los dos scripts. Solo hace falta con Open MPI,
+  que llena primero el primer equipo: `MPIRUN_EXTRA="--map-by node"`. Con MPICH no se usa
+  (ni `--map-by node` ni `--oversubscribe` existen en MPICH).
 
 ## 5. Análisis teórico (para las preguntas de evaluación)
 
